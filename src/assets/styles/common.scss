@@ -1,0 +1,130 @@
+.pr {
+    position: relative;
+  }
+.pa {
+    position: absolute;
+  }
+  .full-h {
+    height: 100%;
+    // overflow-y: scroll;
+}
+.flex1 {
+  flex: 1;
+}
+.ellipsis{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.shaking{
+  animation: shake .35s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25%, 75% {
+    transform: translateX(-2px);
+  }
+  50% {
+    transform: translateX(2px);
+  }
+}
+  @media screen and (max-width: 500px){
+    .login-container,.bind-container{
+      background: #fff!important;
+    }
+    .login-screen-499,.bind-screen-499{
+     width: 100%;
+     height:100%;
+    }
+    .login-w100,.bind-w100{
+      width: 100%;
+      height:100%;
+      padding: 75px 30px 75px 30px!important;
+      box-shadow:none!important;
+    }
+    .f-14-500{
+      font-size: 14px;
+    }
+    .f-12-500{
+      font-size: 12px;
+    }
+    // .customBtn{
+    //   font-size: 12px!important;
+    // }
+  }
+  @media screen and (max-width: 767px){
+    .user-center-container{
+      margin-bottom:unset!important;
+    }
+    .login-input{
+      min-width: 100px;
+    }
+    .msg-input{
+      min-width: 100px;
+    }
+    .service-img{
+      display: none;
+    }
+    .personlMsg-service {
+      // padding: 30px 28px 36px 30px;
+      .service-item {
+        padding: 12px!important;
+      }
+    }
+    .service-img-box{
+      display: none;
+    }
+  }
+  @media screen and (max-width: 999px){
+    .user-center-container{
+      margin-top: 63px!important;
+    }
+    .navigationBarbgs,.foot,.user-center-left{
+      display: none!important;
+    }
+    .login-input{
+      flex: 1;
+      font-size: 12px !important;
+      width: auto!important;
+      // height: 32px!important;
+    }
+    .msg-input{
+      flex: 1;
+      font-size: 12px !important;
+      width: auto!important;
+      height: 32px!important;
+    }
+    .user-center-right{
+      padding: 0 10px 10px!important;
+    }
+    .personlMsg-account,.personlMsg-title,.personlMsg-service{
+      border-radius: 4px;
+      padding: 15px 10px 7px 10px!important;
+    }
+    .personlMsg-title,.personlMsg-service-title{
+      font-size: 14px!important;
+    }
+    .personlMsg-service{
+      padding-bottom:15px!important;
+    }
+    // .label{
+    //   font-size: 14px!important;
+    // }
+    .is-mobile {
+      display: block!important;
+    }
+    .mobileFooter{
+      display: block!important;
+    }
+    #sysnameList{
+      height: auto!important;
+    }
+  }
+  @media screen and (min-width: 1000px){
+    // .personlMsg-service{
+    //   overflow-y: scroll;
+    // }
+  }
