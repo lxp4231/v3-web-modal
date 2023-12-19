@@ -1,5 +1,6 @@
 <template>
-  <div class="personlMsg-title bg-white mb-16px rounded-8px">企业信息</div>
+  <div class="personlMsg-title bg-white mb-16px rounded-8px">tab2</div>
+  <div class="mt10px bg-white h-full"></div>
 </template>
 
 <script setup lang="ts">

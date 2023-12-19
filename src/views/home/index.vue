@@ -16,13 +16,13 @@ const onShow = () => {
 };
 </script>
 <template>
-  <navigationBar />
+  <!-- <navigationBar /> -->
   <div id="sysnameList" class="w-full h-full">
     <div class="user-center bg w-full flex justify-center">
       <div class="user-center-container mt-26px mb-30px w-1280px">
         <el-container class="full">
           <!-- 菜单栏 -->
-          <div class="user-center-left flex flex-col">
+          <!-- <div class="user-center-left flex flex-col">
             <div class="w-196px h-160px flex justify-center items-center flex-col bg-white mb-16px rounded-8px">
               <div class="avator-box w-62px h-62px">
                 <img class="w-full h-full" src="@/assets/img/icon_avator_null.png" alt="" />
@@ -33,7 +33,7 @@ const onShow = () => {
               <div class="avator-name max-w-196px ellipsis mt-15px">{{ loginName ?? '用户头像' }}</div>
             </div>
             <pcNav class="flex-1" />
-          </div>
+          </div> -->
           <!-- 右边内容区 -->
           <el-container direction="vertical">
             <el-main class="user-center-right bg flex-1">
@@ -60,7 +60,7 @@ const onShow = () => {
     </div>
   </div>
 
-  <footerBar />
+  <!-- <footerBar /> -->
   <mobileFooterBar />
 </template>
 
