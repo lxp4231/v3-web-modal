@@ -1,13 +1,14 @@
 <template>
   <div class="mt10px bg-white h-full pt-16px pl-16px pr-16px pb-16px">
     <div class="box-center">
+      <!-- v-if="tableData.length && tableData.length !== 1" -->
       <div class="left">
         <div v-for="(item, index) in tableData" :key="index" class="left-line"></div>
       </div>
       <div class="right">
         <div v-for="(item, index) in tableData" :key="index" class="box-item">
           <div class="title">{{ item.title }}</div>
-          <div class="close">
+          <div class="close" @click="onDelete(index)">
             <el-icon><Close /></el-icon>
           </div>
           <div class="ipt">
@@ -27,14 +28,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-// myArray.splice(indexToRemove, 1);
-const validateNumber = (event: any) => {
-  const inputValue = event.value;
-  if (!/^\d+$/.test(inputValue)) {
-    // eslint-disable-next-line no-param-reassign
-    event.value = inputValue.slice(0, -1);
-  }
-};
+
 const tableData = ref<any>([
   {
     title: '3min内一次通过率',
@@ -53,6 +47,16 @@ const tableData = ref<any>([
     value: 20,
   },
 ]);
+const validateNumber = (event: any) => {
+  const inputValue = event.value;
+  if (!/^\d+$/.test(inputValue)) {
+    // eslint-disable-next-line no-param-reassign
+    event.value = inputValue.slice(0, -1);
+  }
+};
+const onDelete = (index: any) => {
+  tableData.value.splice(index, 1);
+};
 </script>
 
 <style lang="scss" scoped>
