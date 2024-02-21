@@ -1,113 +1,89 @@
 <template>
-  <div class="mt10px bg-white h-full pt-16px pl-16px pr-16px pb-16px">
-    <div class="box-center">
-      <!-- v-if="tableData.length && tableData.length !== 1" -->
-      <div class="left">
-        <div v-for="(item, index) in tableData" :key="index" class="left-line"></div>
-      </div>
-      <div class="right">
-        <div v-for="(item, index) in tableData" :key="index" class="box-item">
-          <div class="title">{{ item.title }}</div>
-          <div class="close" @click="onDelete(index)">
-            <el-icon><Close /></el-icon>
-          </div>
-          <div class="ipt">
-            <el-input
-              v-model="item.value"
-              clearable
-              class="num-input w-66px h-32px"
-              @input="validateNumber(item)"
-            ></el-input>
-            <span>%</span>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div>
+    <el-table
+      border
+      stripe
+      :data="tableData"
+      style="width: 100%; margin-bottom: 20px"
+      row-key="id"
+      default-expand-all
+      :header-cell-style="handerMethod"
+    >
+      <el-table-column prop="date" label="组名" />
+      <el-table-column prop="name" label="" />
+      <el-table-column prop="address" label="" />
+      <el-table-column label="" width="100" fixed="right">
+        <template #default="scope">
+          <el-button v-if="scope.row?.type" size="small" type="primary" link @click="onEdit(scope.row)">编辑</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-
-const tableData = ref<any>([
+const tableData: any[] = [
   {
-    title: '3min内一次通过率',
-    value: 30,
+    id: 3,
+    date: '四港',
+    isGroup: true,
+    children: [
+      {
+        id: 31,
+        name: 'wangxiaohu',
+        isGroup: false,
+        address: 'No. 189, Grove St, Los Angeles',
+      },
+      {
+        id: 32,
+        date: '云平台',
+        isGroup: true,
+        children: [
+          {
+            id: 332,
+            date: '物流宝',
+            name: 'wangxiaohu',
+            address: 'No. 189, Grove St, Los Angeles',
+            type: true,
+            isGroup: false,
+          },
+          {
+            id: 213,
+            date: '纾困',
+            name: 'wangxiaohu',
+            address: 'No. 189, Grove St, Los Angeles',
+            isGroup: false,
+          },
+        ],
+      },
+    ],
   },
-  {
-    title: '3min内一次节点准确率',
-    value: 20,
-  },
-  {
-    title: '3min内最新通过率',
-    value: 30,
-  },
-  {
-    title: '3min内最新节点准确率',
-    value: 20,
-  },
-]);
-const validateNumber = (event: any) => {
-  const inputValue = event.value;
-  if (!/^\d+$/.test(inputValue)) {
-    // eslint-disable-next-line no-param-reassign
-    event.value = inputValue.slice(0, -1);
-  }
+];
+const onEdit = (row: any) => {
+  console.log(row, 'row');
 };
-const onDelete = (index: any) => {
-  tableData.value.splice(index, 1);
+// eslint-disable-next-line consistent-return
+const handerMethod = (row: any) => {
+  // 第一级表头
+  if (row.row[0].level === 1) {
+    // 合并第一三列
+    // eslint-disable-next-line no-param-reassign
+    row.row[0].colSpan = 4;
+    // row.row[1].colSpan = 0;
+    // 设置第一列表头的样式
+    if (row.columnIndex === 0) {
+      return {
+        background: '#F5F7FA',
+        color: '#18233F',
+        fontSize: 'bold',
+        fontFamily: 'PingFangSC, PingFang SC',
+      };
+    }
+  } else {
+    // 其他级别表头样式
+    return { backgroundColor: '#143f6a', color: '#fff' };
+  }
 };
 </script>
 
-<style lang="scss" scoped>
-.box-center {
-  display: flex;
-  .left {
-    margin-top: 18px;
-    .left-line {
-      margin-right: 10px;
-      border-top: 1px solid rgba(177, 186, 194, 0.5);
-      border-left: 1px solid rgba(177, 186, 194, 0.5);
-      width: 20px;
-      height: 43px;
-    }
-    .left-line:last-of-type {
-      border-left: unset !important;
-    }
-  }
-  .box-item {
-    display: flex;
-    align-items: center;
-    width: 840px;
-    // line-height: 20px;
-    margin-bottom: 12px;
-    .title {
-      width: 146px;
-      font-size: 14px;
-      font-weight: 400;
-      color: #2f303d;
-    }
-    .close {
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-left: 22px;
-      margin-right: 24px;
-      height: 32px;
-      color: #b1bac2;
-      &:hover {
-        color: #606266;
-      }
-    }
-    .ipt {
-      font-size: 14px;
-      color: #2f303d;
-      .num-input {
-        width: 66px !important;
-        margin-right: 10px;
-      }
-    }
-  }
-}
-</style>
+<style lang="scss" scoped></style>
