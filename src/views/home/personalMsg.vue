@@ -1,34 +1,62 @@
+<!-- eslint-disable no-use-before-define -->
+<!-- eslint-disable no-undef -->
 <script setup lang="ts">
 import { ref } from 'vue';
-import { GaodeMap } from '@antv/l7-maps';
-import { PolygonLayer } from '@antv/l7';
-import { Scene } from '@antv/l7';
-import data from './data.json'
-// 同样你也可以初始化一个 Mapbox 地图
-const scene = new Scene({
-  id: 'map',
-  map: new GaodeMap({
-    pitch: 35.210526315789465,
-    style: 'dark',
-    center: [104.288144, 31.239692],
-    zoom: 4.4,
-  }),
-});
-const chinaPolygonLayer = new PolygonLayer({})
-  .source(data)
-  .color('name', [
-    'rgb(239,243,255)',
-    'rgb(189,215,231)',
-    'rgb(107,174,214)',
-    'rgb(49,130,189)',
-    'rgb(8,81,156)',
+
+const map = ref();
+// 创建map
+const creatMap = () => {
+  map.value = new BMapGL.Map('map', {
+    showVectorStreetLayer: true, // 设置是否加载POI
+    showVectorLine: true, // 设置是否加载路网数据，注意:路网数据的加载依赖必需加载POI。
+  });
+  map.value.enableScrollWheelZoom(true);
+
+  map.value.setTilt(60);
+  setMapCenter();
+};
+// 设置中心坐标并初始化
+const setMapCenter = () => {
+  const point = new BMapGL.Point(120.1616, 30.2801);
+  map.value.centerAndZoom(point, 9);
+};
+// 设置视野（涉及到起点和终点时使用）
+const setMapViewport = (obj: any) => {
+  // const [a, b] = getMapCenter(obj)
+  // map.value.centerAndZoom(new BMapGL.Point(a, b), 9)
+  let startLng = '';
+  let startLat = '';
+  if (obj.isExistFactoryLocation) {
+    startLng = obj.factoryLocationLng;
+    startLat = obj.factoryLocationLat;
+  } else {
+    startLng = obj.startPlaceLng;
+    startLat = obj.startPlaceLat;
+  }
+  map.value.setViewport([
+    new BMapGL.Point(startLng, startLat),
+    new BMapGL.Point(obj.destinationLng, obj.destinationLat),
   ]);
-  scene.addLayer(chinaPolygonLayer);
+};
+onMounted(() => {
+  creatMap();
+});
 </script>
 <template>
- <div style="min-height:100%; justify-content: center;position: relative" id="map" />
+  <div id="map" class="my_map" />
 </template>
 
 <style lang="scss" scoped>
-
+.my_map {
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  position: relative;
+  padding: 500px;
+  border-radius: 8px;
+  background-color: #fff;
+}
+.anchorBL {
+  display: none;
+}
 </style>

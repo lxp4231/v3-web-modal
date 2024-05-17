@@ -91,7 +91,7 @@ const onShow = () => {
   height: 100%;
 }
 .bg {
-  background: #f6f7fb;
+  background: #fff;
 }
 .user-center-left {
   .avator-name {
