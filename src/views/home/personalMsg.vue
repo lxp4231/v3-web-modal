@@ -45,23 +45,47 @@ const onDrawMarker = (point: BMapGL.Point, icon?: BMapGL.Icon) => {
   const marker = new BMapGL.Marker(point);
   if (icon) marker.setIcon(icon);
 
-  marker.addEventListener('click', async () => {
+  marker.addEventListener('click', () => {
     const infoWindowContainer = infoWindowContent.value;
-    const infoWindow = new BMapGL.InfoWindow(infoWindowContainer, {
-      width: 300,
-      height: 0,
-      title: 'item.yardName',
-      enableMessage: false,
+    const infoBox = new BMapGLLib.InfoBox(map.value, infoWindowContainer, {
+      boxStyle: {
+        width: '300px',
+        height: 'auto',
+        borderRadius: '4px',
+        // boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
+        // padding: '10px',
+      },
+      closeIconUrl: new URL('./img/close.png', import.meta.url).href,
+      closeIconMargin: '5px',
+      enableAutoPan: true,
+      align: BMAP_ANCHOR_TOP_LEFT,
+      offset: new BMapGL.Size(30, -300),
     });
-    map.value.openInfoWindow(infoWindow, point);
-    infoWindow.addEventListener('close', function () {
-      console.log('init()');
+    infoBox.open(marker);
+    infoBox.addEventListener('close', () => {
+      console.log('InfoBox closed');
     });
+    // 保存对 infoBox 的引用
+    const closeInfoBox = () => {
+      infoBox.close();
+      console.log('InfoBox closed by click outside');
+    };
+    // 添加新的全局点击事件监听器
+    window.addEventListener('mousedown', closeInfoBoxOnClickOutside(closeInfoBox));
   });
-
   map.value.addOverlay(marker);
 };
-
+// 关闭弹窗
+const closeInfoBoxOnClickOutside = (closeInfoBox: () => void) => {
+  return () => {
+    const infoWindowContainer = infoWindowContent.value;
+    if (infoWindowContainer) {
+      closeInfoBox();
+      // 移除地图点击事件监听器，避免多次关闭弹窗
+      map.value.removeEventListener('mousedown', closeInfoBoxOnClickOutside);
+    }
+  };
+};
 // 获取标注点并添加到地图
 const getCmsYard = () => {
   points.value.forEach((point) => {
@@ -77,32 +101,9 @@ onMounted(() => {
 
 <template>
   <div id="map" class="my_map"></div>
-  <div class="ctn-box">
-    <div v-show="false">
-      <div ref="infoWindowContent" class="ctn-infoWindowContent" style="max-height: 300px; overflow-y: auto">
-        <div class="model-top">
-          <CheckboxGroup
-            v-model:checked="checkboxValue"
-            class="custom-checkbox-group"
-            :default-value="['D']"
-            @change="onCheckboxGroupChange"
-          >
-            <Checkbox value="D">在场</Checkbox>
-            <Checkbox value="S">在船</Checkbox>
-          </CheckboxGroup>
-        </div>
-        <div class="model-center"></div>
-        <div class="model-bottom">
-          <span
-            ><span class="">合计</span>：<span class="fw">{{ containerSourceNum?.unitNum || 0 }}</span
-            >自然箱</span
-          >
-          <span style="margin-left: 10px"
-            ><span class="fw">{{ containerSourceNum?.teuNum || 0 }}</span
-            >TEU</span
-          >
-        </div>
-      </div>
+  <div v-show="false">
+    <div ref="infoWindowContent" style="max-height: 300px; overflow-y: auto">
+      <div class="ctn-infoBox"></div>
     </div>
   </div>
 </template>
@@ -120,102 +121,17 @@ onMounted(() => {
 .anchorBL {
   display: none;
 }
-.ctn-flex {
-  display: flex;
-  justify-content: center;
-}
-.shadow {
-  display: none !important;
-  box-shadow: none !important;
-}
-.shadow div img {
-  display: none !important;
-}
-.ctn-box {
-  display: flex;
-  justify-content: center;
-  width: calc(100% - 16px);
-  height: calc(100% - 16px);
-  padding: 8px 8px 8px 8px;
-  margin: auto;
-  margin-top: 8px;
-  background-color: #fff;
-  border-radius: 4px;
-  .ctnMap {
-    width: 100%;
-    height: 100%;
-  }
-  .BMap_bubble_title {
-    font-weight: 700 !important;
-  }
-  .BMap_bubble_pop {
-    border: unset !important;
-    height: 334px !important;
-    box-shadow: 0 4px 8px rgba(90, 89, 89, 0.1);
-  }
-  .custom-info-window {
-    box-shadow: none !important;
-  }
-  .ctn-infoWindowContent::-webkit-scrollbar {
-    width: 6px;
-    height: 16px !important;
-  }
-  .ctn-infoWindowContent {
-    max-height: 300px;
-  }
-  .ctn-infoWindowContent::-webkit-scrollbar-track {
-    background: #f1f1f1;
-  }
-
-  .ctn-infoWindowContent::-webkit-scrollbar-thumb {
-    background: #c3c4c6;
-    border-radius: 8px;
-  }
-
-  .ctn-infoWindowContent::-webkit-scrollbar-thumb:hover {
-    background: #a2a3a5;
-  }
-}
-.model-top {
-  position: sticky;
-  top: 0;
-  background: white;
-  box-shadow: 0 -2px 5px rgba(211, 210, 210, 0.1);
-  z-index: 1;
-  .custom-checkbox-group .ant-checkbox-wrapper {
-    font-size: 14px;
-  }
-  .custom-checkbox-group .ant-checkbox-inner {
-    width: 18px;
-    height: 18px;
-  }
-  .custom-checkbox-group .ant-checkbox {
-    transform: scale(0.8);
-    margin-right: 4px;
-  }
-  .ant-checkbox + span {
-    padding-right: 3px !important;
-    padding-left: 3px !important;
-  }
-}
-.model-center {
-  height: 300px;
-  width: 100%;
-}
-.model-bottom {
-  display: flex;
-  align-items: center;
-  position: sticky;
-  bottom: 0;
-  background: white;
-  box-shadow: 0 -2px 5px rgba(211, 210, 210, 0.1);
+.infoBox img {
   z-index: 9999;
-  font-size: 14px;
-  border-bottom-left-radius: 4px;
-  border-bottom-right-radius: 4px;
-  height: 28px;
-  .fw {
-    font-weight: 700;
-  }
+  width: 20px !important; // 设置关闭按钮的宽度
+  height: 20px !important; // 设置关闭按钮的高度
+}
+.ctn-infoBox {
+  width: 300px;
+  height: 310px;
+  // height: 500px;
+  background: url('./img/mapW.png');
+  background-size: 300px 310px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 </style>

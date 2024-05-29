@@ -1,16 +1,16 @@
 /**
  * @fileoverview 百度地图的自定义信息窗口，对外开放。
  * 用户自定义信息窗口的各种样式。例如：border，margin，padding，color，background等
- * 主入口类是<a href="symbols/BMapLib.InfoBox.html">InfoBox</a>，
- * 基于Baidu Map API 1.2。
+ * 主入口类是<a href="symbols/BMapGLLib.InfoBox.html">InfoBox</a>，
+ * 基于Baidu Map API GL 1.0。
  *
  * @author Baidu Map Api Group
- * @version 1.2
+ * @version 1.0
  */
 /**
- * @namespace BMap的所有library类均放在BMapLib命名空间下
+ * @namespace BMapGL的所有library类均放在BMapGLLib命名空间下
  */
-var BMapLib = (window.BMapLib = BMapLib || {});
+var BMapGLLib = (window.BMapGLLib = BMapGLLib || {});
 // 常量，infoBox可以出现的位置，此版本只可实现上下两个方向。
 const INFOBOX_AT_TOP = 1;
 const INFOBOX_AT_RIGHT = 2;
@@ -233,7 +233,7 @@ const INFOBOX_AT_LEFT = 4;
   })();
 
   /**
-   * @exports InfoBox as BMapLib.InfoBox
+   * @exports InfoBox as BMapGLLib.InfoBox
    */
 
   const InfoBox =
@@ -254,25 +254,29 @@ const INFOBOX_AT_LEFT = 4;
          * <br />"<b>align</b>" : {Number} 基于哪个位置进行定位，取值为[INFOBOX_AT_TOP,INFOBOX_AT_BOTTOM]<br />
          * }<br />.
          * @example <b>参考示例：</b><br />
-         * var infoBox = new BMapLib.InfoBox(map,"百度地图api",{boxStyle:{background:"url('tipbox.gif') no-repeat
+         * var infoBox = new BMapGLLib.InfoBox(map,"百度地图api",{boxStyle:{background:"url('tipbox.gif') no-repeat
           center top",width: "200px"},closeIconMargin: "10px 2px 0 0",enableAutoPan: true
           ,alignBottom: false});
      */
-    (BMapLib.InfoBox = function (map, content, opts) {
+    (BMapGLLib.InfoBox = function (map, content, opts) {
       this._content = content || '';
       this._isOpen = false;
       this._map = map;
 
       this._opts = opts = opts || {};
-      this._opts.offset = opts.offset || new BMap.Size(0, 0);
+      this._opts.offset = opts.offset || new BMapGL.Size(0, 0);
       this._opts.boxClass = opts.boxClass || 'infoBox';
       this._opts.boxStyle = opts.boxStyle || {};
+      this._opts.showCloseIcon = opts.showCloseIcon || false;
+      this._opts.closeIconWidth = opts.closeIconWidth || '60px';
+      this._opts.closeIconClickType = opts.closeIconClickType || 0; // 0 关闭close(销毁div)  1 隐藏hide（display:none）
       this._opts.closeIconMargin = opts.closeIconMargin || '2px';
       this._opts.closeIconUrl = opts.closeIconUrl || 'close.png';
       this._opts.enableAutoPan = !!opts.enableAutoPan;
       this._opts.align = opts.align || INFOBOX_AT_TOP;
+      this._opts.disableClose = opts.disableClose === true;
     });
-  InfoBox.prototype = new BMap.Overlay();
+  InfoBox.prototype = new BMapGL.Overlay();
   InfoBox.prototype.initialize = function (map) {
     const me = this;
     const div = (this._div = baidu.dom.create('div', { class: this._opts.boxClass }));
@@ -325,11 +329,11 @@ const INFOBOX_AT_LEFT = 4;
         me._dispatchEvent(me, 'open', { point: me._point });
       }, 10);
     }
-    if (anchor instanceof BMap.Point) {
+    if (anchor instanceof BMapGL.Point) {
       poi = anchor;
       // 清除之前存在的marker事件绑定，如果存在的话
       this._removeMarkerEvt();
-    } else if (anchor instanceof BMap.Marker) {
+    } else if (anchor instanceof BMapGL.Marker) {
       // 如果当前marker不为空，说明是第二个marker，或者第二次点open按钮,先移除掉之前绑定的事件
       if (this._marker) {
         this._removeMarkerEvt();
@@ -384,7 +388,7 @@ const INFOBOX_AT_LEFT = 4;
    * @name InfoBox#Open
    * @event
    * @param {Event Object} e 回调函数会返回event参数，包括以下返回值：
-   * <br />{"<b>target</b> : {BMap.Overlay} 触发事件的元素,
+   * <br />{"<b>target</b> : {BMapGL.Overlay} 触发事件的元素,
    * <br />"<b>type</b>：{String} 事件类型,
    * <br />"<b>point</b>：{Point} infoBox的打开位置}
    *
@@ -398,7 +402,7 @@ const INFOBOX_AT_LEFT = 4;
    * @name InfoBox#Close
    * @event
    * @param {Event Object} e 回调函数会返回event参数，包括以下返回值：
-   * <br />{"<b>target</b> : {BMap.Overlay} 触发事件的元素,
+   * <br />{"<b>target</b> : {BMapGL.Overlay} 触发事件的元素,
    * <br />"<b>type</b>：{String} 事件类型,
    * <br />"<b>point</b>：{Point} infoBox的关闭位置}
    *
@@ -446,7 +450,7 @@ const INFOBOX_AT_LEFT = 4;
    * @return none
    *
    * @example <b>参考示例：</b><br />
-   * infoBox.setPosition(new BMap.Point(116.35,39.911));
+   * infoBox.setPosition(new BMapGL.Point(116.35,39.911));
    */
   InfoBox.prototype.setPosition = function (poi) {
     this._point = poi;
@@ -497,7 +501,10 @@ const INFOBOX_AT_LEFT = 4;
        * @return IMG 关闭按钮的HTML代码
        */
       _getCloseIcon() {
-        const img = `<img src='${this._opts.closeIconUrl}' align='right' style='position:absolute;right:0px;cursor:pointer;margin:${this._opts.closeIconMargin}'/>`;
+        if (this._opts.disableClose) {
+          return '<div></div>';
+        }
+        const img = `<img src='${this._opts.closeIconUrl}' align='right' style='position:absolute;right:0px;cursor:pointer;margin:${this._opts.closeIconMargin};width:${this._opts.closeIconWidth}'/>`;
         return img;
       },
       /**
@@ -512,7 +519,11 @@ const INFOBOX_AT_LEFT = 4;
         if (!this._div) {
           return;
         }
-        const closeHtml = this._getCloseIcon();
+        let closeHtml = '';
+        // 是否配置显示close
+        if (!this._opts.showCloseIcon) {
+          closeHtml = this._getCloseIcon();
+        }
         // string类型的content
         if (typeof content.nodeType === 'undefined') {
           this._div.innerHTML = closeHtml + content;
@@ -522,7 +533,9 @@ const INFOBOX_AT_LEFT = 4;
         }
         this._content = content;
         // 添加click关闭infobox事件
-        this._addEventToClose();
+        if (!this._opts.showCloseIcon) {
+          this._addEventToClose();
+        }
       },
       /**
        * 调整infobox的position
@@ -535,7 +548,7 @@ const INFOBOX_AT_LEFT = 4;
           case INFOBOX_AT_TOP:
             if (this._marker) {
               this._div.style.bottom = `${
-                -(pixel.y - this._opts.offset.height - icon.anchor.height + icon.infoWindowAnchor.height) -
+                -(pixel.y - this._opts.offset.height - icon.anchor.height + icon.infoWindowOffset.height) -
                 this._marker.getOffset().height +
                 2
               }px`;
@@ -549,7 +562,7 @@ const INFOBOX_AT_LEFT = 4;
                 pixel.y +
                 this._opts.offset.height -
                 icon.anchor.height +
-                icon.infoWindowAnchor.height +
+                icon.infoWindowOffset.height +
                 this._marker.getOffset().height
               }px`;
             } else {
@@ -563,11 +576,12 @@ const INFOBOX_AT_LEFT = 4;
             pixel.x -
             icon.anchor.width +
             this._marker.getOffset().width +
-            icon.infoWindowAnchor.width -
-            this._boxWidth / 2
+            icon.infoWindowOffset.width -
+            this._boxWidth / 2 +
+            this._opts.offset.width
           }px`;
         } else {
-          this._div.style.left = `${pixel.x - this._boxWidth / 2}px`;
+          this._div.style.left = `${pixel.x - this._boxWidth / 2 + this._opts.offset.width}px`;
         }
       },
       /**
@@ -602,7 +616,12 @@ const INFOBOX_AT_LEFT = 4;
       _closeHandler() {
         const me = this;
         return function (e) {
-          me.close();
+          // 点击关闭按钮的事件 0 关闭 1 隐藏
+          if (me._opts.closeIconClickType === 0) {
+            me.close();
+          } else {
+            me.hide();
+          }
         };
       },
       /**
@@ -652,7 +671,7 @@ const INFOBOX_AT_LEFT = 4;
           case INFOBOX_AT_TOP:
             // 上侧超出
             var h = this._marker
-              ? icon.anchor.height + this._marker.getOffset().height - icon.infoWindowAnchor.height
+              ? icon.anchor.height + this._marker.getOffset().height - icon.infoWindowOffset.height
               : 0;
             panTop = boxH - anchorPos.y + this._opts.offset.height + h + 2;
             break;
@@ -660,7 +679,7 @@ const INFOBOX_AT_LEFT = 4;
             // 下侧超出
             var h = this._marker
               ? -icon.anchor.height +
-                icon.infoWindowAnchor.height +
+                icon.infoWindowOffset.height +
                 this._marker.getOffset().height +
                 this._opts.offset.height
               : 0;
