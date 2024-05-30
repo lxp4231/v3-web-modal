@@ -31,7 +31,7 @@ const createMap = () => {
   setMapViewport();
 
   // 添加全局点击事件监听器
-  map.value.addEventListener('click', handleMapClick);
+  window.addEventListener('click', handleWindowClick);
 };
 
 // 设置视野
@@ -82,10 +82,10 @@ const onDrawMarker = (point: BMapGL.Point, icon?: BMapGL.Icon) => {
 };
 
 // 关闭弹窗
-const handleMapClick = () => {
+const handleWindowClick = () => {
   if (activeInfoBox) {
     activeInfoBox.close();
-    console.log('InfoBox closed by map click');
+    console.log('InfoBox closed by window click');
     activeInfoBox = null;
   }
 };
