@@ -9,13 +9,13 @@ const asyncRoutes: Array<RouteRecordRaw> = [
       title: '',
       icon: '',
     },
-    redirect: 'personalMsg',
+    redirect: 'pMsg',
     component: () => import('@/views/home/index.vue'),
     children: [
       {
-        path: 'personalMsg',
-        component: () => import('@/views/home/personalMsg.vue'),
-        name: 'personalMsg',
+        path: 'pMsg',
+        component: () => import('@/views/home/pMsg.vue'),
+        name: 'pMsg',
         meta: { title: 'tab1', icon: 'User' },
       },
       {

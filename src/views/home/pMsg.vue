@@ -5,6 +5,7 @@ import { ref, onMounted } from 'vue';
 
 const map = ref();
 const infoWindowContent = ref(null);
+let activeInfoBox = null;
 
 const points = ref([new BMapGL.Point(121.0840042, 30.6345242), new BMapGL.Point(121.920334, 29.918696)]);
 
@@ -15,7 +16,7 @@ const IconMap = {
 };
 
 // 创建地图
-const creatMap = () => {
+const createMap = () => {
   map.value = new BMapGL.Map('map', {
     showVectorStreetLayer: true,
     showVectorLine: true,
@@ -28,6 +29,9 @@ const creatMap = () => {
 
   // 设置视野使所有点在视图内
   setMapViewport();
+
+  // 添加全局点击事件监听器
+  map.value.addEventListener('click', handleMapClick);
 };
 
 // 设置视野
@@ -45,15 +49,18 @@ const onDrawMarker = (point: BMapGL.Point, icon?: BMapGL.Icon) => {
   const marker = new BMapGL.Marker(point);
   if (icon) marker.setIcon(icon);
 
-  marker.addEventListener('click', () => {
+  marker.addEventListener('click', (event) => {
+    event.domEvent.stopPropagation(); // 阻止事件传播到地图
+    if (activeInfoBox) {
+      activeInfoBox.close();
+    }
+
     const infoWindowContainer = infoWindowContent.value;
     const infoBox = new BMapGLLib.InfoBox(map.value, infoWindowContainer, {
       boxStyle: {
         width: '300px',
         height: 'auto',
         borderRadius: '4px',
-        // boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
-        // padding: '10px',
       },
       closeIconUrl: new URL('./img/close.png', import.meta.url).href,
       closeIconMargin: '5px',
@@ -61,31 +68,28 @@ const onDrawMarker = (point: BMapGL.Point, icon?: BMapGL.Icon) => {
       align: BMAP_ANCHOR_TOP_LEFT,
       offset: new BMapGL.Size(30, -300),
     });
+
     infoBox.open(marker);
+    activeInfoBox = infoBox;
+
     infoBox.addEventListener('close', () => {
       console.log('InfoBox closed');
+      activeInfoBox = null;
     });
-    // 保存对 infoBox 的引用
-    const closeInfoBox = () => {
-      infoBox.close();
-      console.log('InfoBox closed by click outside');
-    };
-    // 添加新的全局点击事件监听器
-    window.addEventListener('mousedown', closeInfoBoxOnClickOutside(closeInfoBox));
   });
+
   map.value.addOverlay(marker);
 };
+
 // 关闭弹窗
-const closeInfoBoxOnClickOutside = (closeInfoBox: () => void) => {
-  return () => {
-    const infoWindowContainer = infoWindowContent.value;
-    if (infoWindowContainer) {
-      closeInfoBox();
-      // 移除地图点击事件监听器，避免多次关闭弹窗
-      map.value.removeEventListener('mousedown', closeInfoBoxOnClickOutside);
-    }
-  };
+const handleMapClick = () => {
+  if (activeInfoBox) {
+    activeInfoBox.close();
+    console.log('InfoBox closed by map click');
+    activeInfoBox = null;
+  }
 };
+
 // 获取标注点并添加到地图
 const getCmsYard = () => {
   points.value.forEach((point) => {
@@ -95,14 +99,14 @@ const getCmsYard = () => {
 
 // 挂载地图
 onMounted(() => {
-  creatMap();
+  createMap();
 });
 </script>
 
 <template>
   <div id="map" class="my_map"></div>
   <div v-show="false">
-    <div ref="infoWindowContent" style="max-height: 300px; overflow-y: auto">
+    <div ref="infoWindowContent" style="max-height: 300px; overflow-y: auto" @click.stop>
       <div class="ctn-infoBox"></div>
     </div>
   </div>
