@@ -54,7 +54,6 @@ const onDrawMarker = (point: BMapGL.Point, icon?: BMapGL.Icon) => {
     if (activeInfoBox) {
       activeInfoBox.close();
     }
-
     const infoWindowContainer = infoWindowContent.value;
     const infoBox = new BMapGLLib.InfoBox(map.value, infoWindowContainer, {
       boxStyle: {
