@@ -1,9 +1,41 @@
-<!-- eslint-disable no-use-before-define -->
-<!-- eslint-disable no-undef -->
+<template>
+  <div class="map-box">
+    <div id="map" class="my_map"></div>
+    <div class="map">
+      <el-popover
+        v-model:visible="popVisible"
+        show-arrow="false"
+        placement="bottom-start"
+        width="400"
+        trigger="click"
+        popper-style="{
+          boxShadow: '0px 2px 4px 0px rgba(177,186,194,0.2)',
+          borderRadius: '4px',
+          padding: '0',
+          background: 'rgba(255,255,255,0)',
+          border: 0,
+        }"
+      >
+        <template #reference>
+          <el-input v-model="keyword" placeholder="请输入船名/呼号/MMSI/IMO" clearable @focus="openPopover" />
+        </template>
+      </el-popover>
+    </div>
+    <div v-show="false">
+      <div ref="infoWindowContent" style="max-height: 300px; overflow-y: auto" @click.stop>
+        <div class="ctn-infoBox"></div>
+      </div>
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
 
 const map = ref();
+const popVisible = ref(false);
+const keyword = ref('');
 const infoWindowContent = ref(null);
 let activeInfoBox = null;
 
@@ -96,22 +128,27 @@ const getCmsYard = () => {
   });
 };
 
+// 打开弹窗
+const openPopover = () => {
+  popVisible.value = true;
+};
+
 // 挂载地图
 onMounted(() => {
   createMap();
 });
 </script>
 
-<template>
-  <div id="map" class="my_map"></div>
-  <div v-show="false">
-    <div ref="infoWindowContent" style="max-height: 300px; overflow-y: auto" @click.stop>
-      <div class="ctn-infoBox"></div>
-    </div>
-  </div>
-</template>
-
 <style lang="scss">
+.map-box {
+  position: relative;
+}
+.map {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 99;
+}
 .my_map {
   width: 100%;
   height: 100%;
@@ -132,7 +169,6 @@ onMounted(() => {
 .ctn-infoBox {
   width: 300px;
   height: 310px;
-  // height: 500px;
   background: url('./img/mapW.png');
   background-size: 300px 310px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
