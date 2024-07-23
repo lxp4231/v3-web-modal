@@ -39,4 +39,7 @@ export function userOpt(data: IOpt) {
 export function userByidpLogin(data: BLogin) {
   return POST<boolean>('/usercenter/login/byidp', data);
 }
-// 绑定手机号
+// 上传
+export function upload(data: BLogin) {
+  return POST<boolean>('/usercenter/oss/upload', data);
+}

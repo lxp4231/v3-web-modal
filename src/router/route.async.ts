@@ -35,6 +35,15 @@ const asyncRoutes: Array<RouteRecordRaw> = [
     },
     component: () => import('@/views/bindPhoneNumber/bindPhoneNumber.vue'),
   },
+  {
+    path: '/ceshi',
+    name: 'ceshi',
+    meta: {
+      title: '',
+      icon: '',
+    },
+    component: () => import('@/views/ceshi/index.vue'),
+  },
 ];
 
 export default asyncRoutes;
